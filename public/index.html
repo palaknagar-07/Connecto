@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #f0f2f5;
+    }
+
+    header {
+      text-align: center;
+      background: #4a90e2;
+      color: #fff;
+      margin: 0;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 0.75rem 1rem;
+      border-radius: 15px;
+      word-wrap: break-word;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .message.self {
+      align-self: flex-end;
+      background: #4caf50;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+
+    .message.other {
+      align-self: flex-start;
+      background: #fff;
+      color: #333;
+      border-bottom-left-radius: 5px;
+    }
+
+    #form {
+      display: flex;
+      padding: 0.75rem;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      gap: 0.5rem;
+    }
+
+    #message {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: border 0.2s ease;
+    }
+
+    #message:focus {
+      border-color: #4a90e2;
+    }
+
+    #sendbtn {
+      background: #4a90e2;
+      border: none;
+      border-radius: 20px;
+      padding: 0 1.5rem;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #sendbtn:hover {
+      background: #357abd;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message {
+      position: relative;
+    }
+
+    .message .meta {
+      display: block;
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.3rem;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <header>💬 Chat Application</header>
+
+  <div id="messages"></div>
+
+  <div id="form">
+    <input type="text" id="message" placeholder="Type your message..." autocomplete="off" />
+    <button id="sendbtn">Send</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const sendbtn = document.getElementById("sendbtn");
+    const messageInput = document.getElementById("message");
+    const allMessages = document.getElementById("messages");
+
+    let lastSentMessage = "";
+
+    // Listen for messages from server
+    socket.on("message", (msgData) => {
+      // Prevent showing my own message twice
+      if (msgData.text === lastSentMessage) {
+        //  Update last self bubble to "Delivered"
+        const lastBubble = document.querySelector(".message.self:last-child");
+        if (lastBubble) {
+          lastBubble.innerHTML = `
+          ${msgData.text}
+          <span class="meta"> ${msgData.time}</span>
+        `;
+        }
+        lastSentMessage = "";
+        return;
+      }
+
+      // Show other people's messages
+      const div = document.createElement("div");
+      div.classList.add("message", "other");
+      div.innerHTML = `
+      ${msgData.text}
+      <span class="meta">${msgData.time}</span>
+    `;
+      allMessages.appendChild(div);
+      allMessages.scrollTop = allMessages.scrollHeight;
+    });
+
+    // Send message
+    sendbtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (message !== "") {
+        const div = document.createElement("div");
+        div.classList.add("message", "self");
+        div.innerHTML = `
+        ${message}
+        <span class="meta">⏳</span> <!-- pending until delivered -->
+      `;
+        allMessages.appendChild(div);
+
+        socket.emit("user-message", message);
+        lastSentMessage = message;
+        messageInput.value = "";
+        allMessages.scrollTop = allMessages.scrollHeight;
+      }
+    }
+  </script>
+
+</body>
+
+</html>
