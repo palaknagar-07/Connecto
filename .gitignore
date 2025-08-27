@@ -25,3 +25,15 @@ build/
 .vscode/
 .idea/
 *.swp
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock

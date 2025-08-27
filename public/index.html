@@ -6,188 +6,909 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat App</title>
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: #f0f2f5;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      overflow: hidden;
     }
 
     header {
-      text-align: center;
-      background: #4a90e2;
-      color: #fff;
-      margin: 0;
-      padding: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      color: #2c3e50;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-left h1 {
       font-size: 1.5rem;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      font-weight: 600;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .online-indicator {
+      width: 8px;
+      height: 8px;
+      background: #4caf50;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .logout-btn {
+      color: #7f8c8d;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .logout-btn:hover {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      transform: translateY(-1px);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-name {
+      color: #2c3e50;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.4rem 0.75rem;
+      border-radius: 16px;
     }
 
     #messages {
       flex: 1;
-      padding: 1rem;
+      padding: 1.5rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    #messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #messages::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+
+    #messages::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
     }
 
     .message {
-      max-width: 70%;
-      padding: 0.75rem 1rem;
-      border-radius: 15px;
+      max-width: 85%;
+      padding: 0.5rem 1rem;
+      border-radius: 18px;
       word-wrap: break-word;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      animation: fadeIn 0.2s ease-in-out;
+      position: relative;
+      animation: slideIn 0.3s ease-out;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      width: auto;
+      max-width: 100%;
+    }
+
+    .message-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      line-height: 1.4;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .message strong {
+      font-weight: 600;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .message-body {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .message .meta {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      font-weight: 400;
+      white-space: nowrap;
     }
 
     .message.self {
       align-self: flex-end;
-      background: #4caf50;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
-      border-bottom-right-radius: 5px;
+      border-bottom-right-radius: 6px;
+      margin-left: auto;
     }
 
     .message.other {
       align-self: flex-start;
-      background: #fff;
-      color: #333;
-      border-bottom-left-radius: 5px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      color: #2c3e50;
+      border-bottom-left-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .message.self strong {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .message.other strong {
+      color: #667eea;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     #form {
       display: flex;
-      padding: 0.75rem;
-      background: #fff;
-      border-top: 1px solid #ddd;
-      gap: 0.5rem;
+      padding: 1.25rem 1.5rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      gap: 0.75rem;
+      align-items: flex-end;
     }
 
     #message {
       flex: 1;
-      padding: 0.75rem 1rem;
-      border-radius: 20px;
-      border: 1px solid #ccc;
+      padding: 0.875rem 1.25rem;
+      border-radius: 22px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
       outline: none;
-      transition: border 0.2s ease;
+      background: rgba(255, 255, 255, 0.9);
+      color: #2c3e50;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      transition: all 0.3s ease;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      font-family: inherit;
     }
 
     #message:focus {
-      border-color: #4a90e2;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    #message::placeholder {
+      color: #95a5a6;
+      opacity: 0.8;
     }
 
     #sendbtn {
-      background: #4a90e2;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       border: none;
-      border-radius: 20px;
-      padding: 0 1.5rem;
-      color: #fff;
-      font-weight: bold;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      color: white;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
     }
 
     #sendbtn:hover {
-      background: #357abd;
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
     }
 
-    @keyframes fadeIn {
+    #sendbtn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    #sendbtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: none;
+      padding: 0.5rem 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .empty-state p {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      max-width: 300px;
+    }
+
+    /* Emoji Picker Styles */
+    .emoji-picker {
+      position: absolute;
+      bottom: 70px;
+      right: 1.5rem;
+      width: 320px;
+      max-height: 400px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: none;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .emoji-picker.show {
+      display: block;
+      animation: emojiPickerSlide 0.3s ease-out;
+    }
+
+    @keyframes emojiPickerSlide {
       from {
         opacity: 0;
-        transform: translateY(5px);
+        transform: translateY(10px) scale(0.95);
       }
-
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
     }
 
-    .message {
-      position: relative;
+    .emoji-categories {
+      display: flex;
+      background: rgba(102, 126, 234, 0.1);
+      padding: 0.5rem;
+      gap: 0.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .message .meta {
-      display: block;
-      font-size: 0.75rem;
-      color: #666;
-      margin-top: 0.3rem;
-      text-align: right;
+    .emoji-category-btn {
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+      opacity: 0.6;
+    }
+
+    .emoji-category-btn:hover,
+    .emoji-category-btn.active {
+      background: rgba(102, 126, 234, 0.2);
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .emoji-grid {
+      padding: 0.75rem;
+      max-height: 300px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0.25rem;
+    }
+
+    .emoji-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .emoji-grid::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    .emoji-grid::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 2px;
+    }
+
+    .emoji-btn {
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .emoji-btn:hover {
+      background: rgba(102, 126, 234, 0.15);
+      transform: scale(1.2);
+    }
+
+    .emoji-toggle {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      color: #667eea;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
+
+    .emoji-toggle:hover {
+      background: rgba(102, 126, 234, 0.1);
+      border-color: #667eea;
+      transform: translateY(-1px) scale(1.05);
+    }
+
+    .emoji-toggle.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: transparent;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      header {
+        padding: 0.875rem 1rem;
+      }
+
+      .header-left h1 {
+        font-size: 1.25rem;
+      }
+
+      #messages {
+        padding: 1rem;
+        gap: 0.5rem;
+      }
+
+      .message {
+        max-width: 85%;
+        padding: 0.5rem 1rem;
+      }
+
+      #form {
+        padding: 1rem;
+        gap: 0.5rem;
+      }
+
+      #message {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      #sendbtn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+
+      .emoji-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+
+      .emoji-picker {
+        width: 280px;
+        right: 1rem;
+        bottom: 60px;
+      }
+
+      .emoji-grid {
+        grid-template-columns: repeat(7, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .message {
+        max-width: 90%;
+      }
+
+      .logout-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      .emoji-picker {
+        width: 260px;
+        right: 0.5rem;
+      }
+
+      .emoji-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
     }
   </style>
 </head>
 
 <body>
-  <header>💬 Chat Application</header>
+  <header>
+    <div class="header-left">
+      <h1>💬 Connecto</h1>
+      <div class="online-indicator"></div>
+    </div>
+    <div class="header-right">
+      <span id="userName" class="user-name" title="You are signed in as"></span>
+      <a href="/logout" id="logoutLink" class="logout-btn">Logout</a>
+    </div>
+  </header>
 
-  <div id="messages"></div>
+  <div id="messages">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-state-icon">💬</div>
+      <h3>Welcome to Connecto!</h3>
+      <p>Start a conversation by sending your first message below.</p>
+    </div>
+  </div>
 
   <div id="form">
-    <input type="text" id="message" placeholder="Type your message..." autocomplete="off" />
-    <button id="sendbtn">Send</button>
+    <button class="emoji-toggle" id="emojiToggle" title="Add emoji">😀</button>
+    <textarea id="message" placeholder="Type your message..." autocomplete="off" rows="1"></textarea>
+    <button id="sendbtn" title="Send message">➤</button>
+  </div>
+  <div class="typing-indicator" id="typingIndicator">Someone is typing...</div>
+
+  <!-- Emoji Picker -->
+  <div class="emoji-picker" id="emojiPicker">
+    <div class="emoji-categories">
+      <button class="emoji-category-btn active" data-category="smileys">😀</button>
+      <button class="emoji-category-btn" data-category="people">👋</button>
+      <button class="emoji-category-btn" data-category="nature">🌟</button>
+      <button class="emoji-category-btn" data-category="food">🍕</button>
+      <button class="emoji-category-btn" data-category="activities">⚽</button>
+      <button class="emoji-category-btn" data-category="travel">✈️</button>
+      <button class="emoji-category-btn" data-category="objects">💡</button>
+      <button class="emoji-category-btn" data-category="symbols">❤️</button>
+    </div>
+    <div class="emoji-grid" id="emojiGrid">
+      <!-- Emojis will be populated by JavaScript -->
+    </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
+    // Initialize with user data from server
+    const currentUser = window.userData || { userName: 'Anonymous', userId: null };
+    console.log('Current user data:', currentUser);
+    
+    // Initialize socket with query parameters for user data
+    const socket = io({
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+        query: {
+            userId: currentUser.userId || null,
+            userName: currentUser.userName || 'Anonymous'
+        },
+        auth: {
+            token: currentUser.userId ? 'user-' + currentUser.userId : 'anonymous'
+        }
+    });
+    
     const sendbtn = document.getElementById("sendbtn");
     const messageInput = document.getElementById("message");
     const allMessages = document.getElementById("messages");
 
     let lastSentMessage = "";
+    let isConnected = false;
+    const emptyState = document.getElementById('emptyState');
+    const emojiToggle = document.getElementById('emojiToggle');
+    const emojiPicker = document.getElementById('emojiPicker');
+    const emojiGrid = document.getElementById('emojiGrid');
+    const categoryBtns = document.querySelectorAll('.emoji-category-btn');
+    
+    // Handle socket connection
+    socket.on('connect', () => {
+        console.log('Socket connected with ID:', socket.id);
+        isConnected = true;
+        
+        // Join chat with user data
+        if (currentUser.userId) {
+            console.log('Joining chat as user:', currentUser.userName);
+            socket.emit('join-chat', {
+                userId: currentUser.userId,
+                userName: currentUser.userName
+            });
+        } else {
+            console.warn('No user ID available, joining as anonymous');
+            socket.emit('join-chat', {
+                userId: null,
+                userName: 'Anonymous'
+            });
+        }
+    });
+    
+    // Handle connection errors
+    socket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+        isConnected = false;
+    });
+    
+    // Handle successful join
+    socket.on('join-acknowledged', (data) => {
+        console.log('Join acknowledged:', data);
+        if (data.userName) {
+            currentUser.userName = data.userName;
+        }
+    });
+    
+    // Handle join errors
+    socket.on('join-error', (error) => {
+        console.error('Error joining chat:', error);
+        // Show error to user
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = 'Error connecting to chat. Please refresh the page.';
+        document.body.prepend(errorDiv);
+        
+        // Remove error after 5 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    });
 
-    // Listen for messages from server
+    // Emoji data organized by categories
+    const emojiCategories = {
+      smileys: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐'],
+      people: ['👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦿', '🦵', '🦶', '👂', '🦻', '👃', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄', '💋', '🩸'],
+      nature: ['🌟', '⭐', '🌠', '☀️', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '💫', '⚡', '☄️', '💥', '🔥', '🌪️', '🌈', '☂️', '☔', '⛈️', '🌤️', '⛅', '🌦️', '🌧️', '⛆', '❄️', '☃️', '⛄', '🌨️', '💨', '💧', '💦', '🌊'],
+      food: ['🍕', '🍔', '🍟', '🌭', '🥪', '🌮', '🌯', '🥙', '🧆', '🥚', '🍳', '🥘', '🍲', '🥣', '🥗', '🍿', '🧈', '🧂', '🥨', '🥖', '🍞', '🥐', '🥯', '🧇', '🥞', '🍰', '🎂', '🧁', '🥧', '🍫', '🍬', '🍭', '🍮', '🍯', '🍼', '🥛', '☕', '🍵', '🧃', '🥤', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾'],
+      activities: ['⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🪃', '🥅', '⛳', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️', '🤼', '🤸', '⛹️', '🤺', '🤾', '🏌️', '🏇', '🧘', '🏄', '🏊', '🤽', '🚣', '🧗', '🚵', '🚴', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️'],
+      travel: ['✈️', '🛫', '🛬', '🪂', '💺', '🚁', '🚟', '🚠', '🚡', '🛰️', '🚀', '🛸', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚕', '🚖', '🚗', '🚘', '🚙', '🛻', '🚚', '🚛', '🚜', '🏎️', '🏍️', '🛵', '🦽', '🦼', '🛴', '🚲', '🛺', '🚨', '🚥', '🚦', '🛑', '🚧'],
+      objects: ['💡', '🔦', '🕯️', '🪔', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '💰', '💳', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪓', '🪚', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪃', '🏹', '🛡️', '🪚', '🔪', '⚔️', '📱', '📞', '☎️', '📟', '📠', '🔋', '🪫', '🔌', '💻', '🖥️', '🖨️', '⌨️', '🖱️', '🖲️', '💽', '💾', '💿', '📀', '🧮', '🎥', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'],
+      symbols: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕', '🛑', '⛔', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+    };
+
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Hide empty state when messages exist
+    function hideEmptyState() {
+      if (emptyState) {
+        emptyState.style.display = 'none';
+      }
+    }
+
+    // Initialize emoji picker
+    function initEmojiPicker() {
+      showEmojiCategory('smileys');
+      
+      // Toggle emoji picker
+      emojiToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        emojiPicker.classList.toggle('show');
+        emojiToggle.classList.toggle('active');
+      });
+
+      // Category switching
+      categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          categoryBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          showEmojiCategory(btn.dataset.category);
+        });
+      });
+
+      // Close picker when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!emojiPicker.contains(e.target) && !emojiToggle.contains(e.target)) {
+          emojiPicker.classList.remove('show');
+          emojiToggle.classList.remove('active');
+        }
+      });
+    }
+
+    function showEmojiCategory(category) {
+      const emojis = emojiCategories[category] || [];
+      emojiGrid.innerHTML = '';
+      
+      emojis.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.className = 'emoji-btn';
+        btn.textContent = emoji;
+        btn.addEventListener('click', () => insertEmoji(emoji));
+        emojiGrid.appendChild(btn);
+      });
+    }
+
+    function insertEmoji(emoji) {
+      const cursorPos = messageInput.selectionStart;
+      const textBefore = messageInput.value.substring(0, cursorPos);
+      const textAfter = messageInput.value.substring(messageInput.selectionEnd);
+      
+      messageInput.value = textBefore + emoji + textAfter;
+      messageInput.focus();
+      messageInput.setSelectionRange(cursorPos + emoji.length, cursorPos + emoji.length);
+      
+      // Auto-resize textarea
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+      
+      // Close picker
+      emojiPicker.classList.remove('show');
+      emojiToggle.classList.remove('active');
+    }
+
+    // Initialize emoji picker
+    initEmojiPicker();
+
+    // User data is handled during socket connection
+
+    // Handle incoming messages
     socket.on("message", (msgData) => {
-      // Prevent showing my own message twice
+      hideEmptyState();
+      
+      // Check if message is valid
+      if (!msgData || typeof msgData !== 'object') {
+        console.error('Invalid message format:', msgData);
+        return;
+      }
+      
+      // Check if this is our own message that was just sent
       if (msgData.text === lastSentMessage) {
-        //  Update last self bubble to "Delivered"
-        const lastBubble = document.querySelector(".message.self:last-child");
-        if (lastBubble) {
-          lastBubble.innerHTML = `
-          ${msgData.text}
-          <span class="meta"> ${msgData.time}</span>
-        `;
+        // Find and update the pending message with the server's timestamp
+        const pendingMessage = document.querySelector(`[data-temp-id="${msgData.tempId}"]`);
+        if (pendingMessage) {
+          const metaEl = pendingMessage.querySelector('.meta');
+          if (metaEl) {
+            metaEl.textContent = msgData.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          }
+          // Remove the temp ID since we've received the server's copy
+          pendingMessage.removeAttribute('data-temp-id');
         }
         lastSentMessage = "";
         return;
       }
-
-      // Show other people's messages
+      
+      // Extract message text - handle both direct string and object with text property
+      const messageText = typeof msgData === 'string' ? msgData : 
+                         (msgData.text || JSON.stringify(msgData));
+      
+      // Check if this is our own message (from another tab/device)
+      const isCurrentUser = currentUser.userId && msgData.userId === currentUser.userId;
+      
+      // Create message element
       const div = document.createElement("div");
-      div.classList.add("message", "other");
+      div.classList.add("message", isCurrentUser ? "self" : "other");
+      
+      // Format display name
+      const displayName = isCurrentUser ? 'You' : (msgData.userName || 'Anonymous');
+      
+      // Format time - use provided time or current time
+      const displayTime = msgData.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      // Create message HTML
       div.innerHTML = `
-      ${msgData.text}
-      <span class="meta">${msgData.time}</span>
-    `;
+        <div class="message-content">
+          <div class="message-header">
+            <strong>${escapeHtml(displayName)}</strong>
+          </div>
+          <div class="message-body">
+            <span class="message-text">${escapeHtml(messageText)}</span>
+            <span class="meta">${displayTime}</span>
+          </div>
+        </div>
+      `;
+      
       allMessages.appendChild(div);
-      allMessages.scrollTop = allMessages.scrollHeight;
+      smoothScrollToBottom();
     });
 
     // Send message
     sendbtn.addEventListener("click", sendMessage);
     messageInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") sendMessage();
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
 
+    // Utility functions
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function smoothScrollToBottom() {
+      allMessages.scrollTo({
+        top: allMessages.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+
+    // Send message function
     function sendMessage() {
       const message = messageInput.value.trim();
-      if (message !== "") {
-        const div = document.createElement("div");
-        div.classList.add("message", "self");
-        div.innerHTML = `
-        ${message}
-        <span class="meta">⏳</span> <!-- pending until delivered -->
-      `;
-        allMessages.appendChild(div);
+      if (!message) return;
 
-        socket.emit("user-message", message);
-        lastSentMessage = message;
-        messageInput.value = "";
-        allMessages.scrollTop = allMessages.scrollHeight;
+      // Only allow sending if we have a valid user ID
+      if (!currentUser.userId) {
+        alert('Please sign in to send messages');
+        return;
       }
+      
+      // Show sending state
+      const tempId = 'msg-' + Date.now();
+      const tempDiv = document.createElement("div");
+      tempDiv.className = "message self";
+      tempDiv.setAttribute('data-temp-id', tempId);
+      tempDiv.innerHTML = `
+        <div class="message-content">
+          <div class="message-header">
+            <strong>You</strong>
+          </div>
+          <div class="message-body">
+            <span class="message-text">${escapeHtml(message)}</span>
+            <span class="meta">Sending...</span>
+          </div>
+        </div>
+      `;
+      allMessages.appendChild(tempDiv);
+      smoothScrollToBottom();
+      
+      // Store the last sent message to handle duplicates
+      lastSentMessage = message;
+      
+      // Clear input
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+      
+      // Send message to server with user data
+      if (isConnected) {
+        const messageData = {
+          text: message,
+          userId: currentUser.userId,
+          userName: currentUser.userName,
+          tempId: tempId  // Include tempId to track this message
+        };
+        
+        socket.emit('user-message', messageData, (response) => {
+          if (!response || !response.success) {
+            console.error('Failed to send message:', response?.error || 'Unknown error');
+            const errorEl = document.querySelector(`[data-temp-id="${tempId}"] .meta`);
+            if (errorEl) {
+              errorEl.textContent = 'Failed to send';
+              errorEl.style.color = '#ff6b6b';
+            }
+            return;
+          }
+          
+          // Message was sent successfully
+          const messageEl = document.querySelector(`[data-temp-id="${tempId}"]`);
+          if (messageEl) {
+            const metaEl = messageEl.querySelector('.meta');
+            if (metaEl && response.messageData?.time) {
+              metaEl.textContent = response.messageData.time;
+            }
+            // Remove the temp ID since we've updated the message
+            messageEl.removeAttribute('data-temp-id');
+          }
+          
+          // Clear the last sent message
+          if (message === lastSentMessage) {
+            lastSentMessage = "";
+          }
+        });
+      }
+      
+      // Set focus back to the input
+      messageInput.focus();
+    }
+
+    // Populate username in header
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl) userNameEl.textContent = currentUser.userName || 'User';
+
+    // Add confirmation dialog for logout
+    const logoutLink = document.getElementById('logoutLink');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', (e) => {
+        const name = currentUser.userName || 'this account';
+        if (!confirm(`Are you sure you want to log out of ${name}?`)) {
+          e.preventDefault();
+        }
+      });
     }
   </script>
 
