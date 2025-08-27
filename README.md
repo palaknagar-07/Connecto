@@ -25,16 +25,6 @@ A simple, elegant real-time chat application built with Node.js, Express, and So
    npm install express socket.io
    ```
 
-### Project Structure
-
-```
-connecto/
-├── index.js          # Server-side code
-├── public/
-│   └── index.html    # Client-side code (HTML, CSS, JS)
-└── README.md         # This file
-```
-
 ### Running the Application
 
 1. Start the server:
