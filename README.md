@@ -14,12 +14,12 @@ A simple, elegant real-time chat application built with Node.js, Express, and So
 
 ### Prerequisites
 
-- Node.js (version 12 or higher)
+- Node.js (version 12 or +)
 - npm (comes with Node.js)
 
 ### Installation
 
-1. Clone or download the project files
+1. Clone the project files
 2. Install dependencies:
    ```bash
    npm install express socket.io
