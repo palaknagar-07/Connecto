@@ -74,7 +74,7 @@ A simple, elegant real-time chat application built with Node.js, Express, and So
 You can easily customize the application by modifying:
 
 - **Colors**: Update the CSS color scheme in the `<style>` section
-- **Port**: Change the port number in `index.js` (default: 9000)
+- **Port**: Change the port number in `index.js`  to whichever is free (default: 9000)
 - **Message Format**: Modify the message structure in the Socket.IO event handlers
 - **UI Layout**: Adjust the HTML structure and CSS styling
 
